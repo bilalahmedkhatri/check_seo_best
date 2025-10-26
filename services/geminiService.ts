@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import type { KeywordStrategyResult } from '../types';
 
@@ -250,4 +251,49 @@ export const generateTopicClusters = async (keywordData: KeywordStrategyResult) 
         }
     });
     return JSON.parse(response.text);
+};
+
+export const auditSEO = async (url: string, keyword: string) => {
+    const systemInstruction = `You are a technical SEO expert conducting a website audit. Using Google Search, analyze the provided URL.
+Your entire response MUST be a single, valid JSON object with no other text or explanations.
+
+The JSON object must have this exact structure:
+{
+  "overallScore": number,
+  "onPageSeo": [ { "check": "string", "status": "Pass" | "Fail" | "Warning" | "Info", "recommendation": "string" } ],
+  "contentQuality": [ { "check": "string", "status": "Pass" | "Fail" | "Warning" | "Info", "recommendation": "string" } ],
+  "technicalSeo": [ { "check": "string", "status": "Pass" | "Fail" | "Warning" | "Info", "recommendation": "string" } ]
+}
+
+Audit Checklist:
+- On-Page SEO: Title Tag (unique, length, keyword), Meta Description (unique, length, CTA), Header Tags (H1 presence, structure), Image SEO (alt text, file names).
+- Content Quality: Keyword Strategy (focus keyword usage), Content Originality (check for duplication), Readability (clarity, formatting).
+- Technical SEO: Mobile-Friendliness, Page Speed (general assessment), Internal Linking, Robots.txt & Sitemap (check for presence and basic correctness).
+
+Calculate an "overallScore" out of 100 based on the number of "Pass" statuses. Be strict but fair.
+For each check, provide a concise "recommendation" with actionable advice.`;
+
+    const prompt = `Audit the website at URL "${url}" with a focus on the keyword "${keyword}". Follow the instructions and provide the full JSON response.`;
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            systemInstruction: systemInstruction,
+            tools: [{ googleSearch: {} }],
+        }
+    });
+
+    let jsonString = response.text.trim();
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+        jsonString = jsonMatch[0];
+    }
+
+    try {
+        return JSON.parse(jsonString);
+    } catch (e) {
+        console.error('Failed to parse SEO Audit response as JSON:', response.text, e);
+        throw new Error('Failed to parse SEO audit. The format may be invalid.');
+    }
 };

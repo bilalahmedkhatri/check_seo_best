@@ -32,35 +32,33 @@ const MoonIcon: React.FC = () => (
 
 interface HeaderProps {
   activeNavItem: NavItemKey;
-  setActiveNavItem: (item: NavItemKey) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeNavItem, setActiveNavItem }) => {
+const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
   const currentItem = NAV_ITEMS.find(item => item.key === activeNavItem);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  const buttonsRef = useRef<Map<NavItemKey, HTMLButtonElement | null>>(new Map());
+  const navLinksRef = useRef<Map<NavItemKey, HTMLAnchorElement | null>>(new Map());
   const activeUnderlineRef = useRef<HTMLDivElement>(null);
 
-  const handleNavClick = (itemKey: NavItemKey) => {
-    setActiveNavItem(itemKey);
+  const handleMenuLinkClick = () => {
     setIsMenuOpen(false);
   }
 
   // Animation effect for the underline
   useEffect(() => {
-    const activeButton = buttonsRef.current.get(activeNavItem);
+    const activeLink = navLinksRef.current.get(activeNavItem);
     const underline = activeUnderlineRef.current;
 
-    if (activeButton && underline) {
+    if (activeLink && underline) {
         // FIX: The imported `anime` is a module namespace instead of the function itself due to a module resolution issue.
         // The actual function is likely on the `default` property. This handles both cases.
         const animeFn = (anime as any).default || anime;
         animeFn({
             targets: underline,
-            left: activeButton.offsetLeft,
-            width: activeButton.offsetWidth,
+            left: activeLink.offsetLeft,
+            width: activeLink.offsetWidth,
             duration: 400,
             easing: 'easeOutQuint'
         });
@@ -70,11 +68,11 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem, setActiveNavItem }) => {
   // Handle window resize to reposition underline without animation
   useEffect(() => {
     const handleResize = () => {
-        const activeButton = buttonsRef.current.get(activeNavItem);
+        const activeLink = navLinksRef.current.get(activeNavItem);
         const underline = activeUnderlineRef.current;
-        if (activeButton && underline) {
-            underline.style.left = `${activeButton.offsetLeft}px`;
-            underline.style.width = `${activeButton.offsetWidth}px`;
+        if (activeLink && underline) {
+            underline.style.left = `${activeLink.offsetLeft}px`;
+            underline.style.width = `${activeLink.offsetWidth}px`;
         }
     };
     window.addEventListener('resize', handleResize);
@@ -91,27 +89,24 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem, setActiveNavItem }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">SEO Studio</h1>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">AI SEO Studio</p>
           </div>
           
           <nav className="hidden md:flex items-center space-x-1 relative">
             {NAV_ITEMS.map((item) => (
-              <button
+              <a
                 key={item.key}
-                // FIX: The ref callback must not return a value. `Map.set` returns the map,
-                // so we use a block statement to ensure an implicit `undefined` return.
-                ref={el => { buttonsRef.current.set(item.key, el) }}
-                onClick={() => handleNavClick(item.key)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                ref={el => { navLinksRef.current.set(item.key, el) }}
+                href={`#/${item.key}`}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                   activeNavItem === item.key
                     ? 'text-brand-primary'
                     : 'text-gray-600 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary'
                 }`}
                 aria-current={activeNavItem === item.key ? 'page' : undefined}
               >
-                {React.cloneElement(item.icon, { className: 'w-5 h-5' })}
                 <span>{item.label}</span>
-              </button>
+              </a>
             ))}
             <div
                 ref={activeUnderlineRef}
@@ -139,19 +134,19 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem, setActiveNavItem }) => {
         <nav className="md:hidden border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {NAV_ITEMS.map((item) => (
-              <button
+              <a
                 key={item.key}
-                onClick={() => handleNavClick(item.key)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-base font-medium transition-colors duration-200 text-left ${
+                href={`#/${item.key}`}
+                onClick={handleMenuLinkClick}
+                className={`block w-full px-3 py-2 rounded-lg text-base font-medium transition-colors duration-200 text-left ${
                   activeNavItem === item.key
-                    ? 'text-brand-primary'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary'
+                    ? 'text-brand-primary bg-gray-100 dark:bg-gray-900'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
                 aria-current={activeNavItem === item.key ? 'page' : undefined}
               >
-                {React.cloneElement(item.icon, { className: 'w-5 h-5' })}
                 <span>{item.label}</span>
-              </button>
+              </a>
             ))}
           </div>
         </nav>

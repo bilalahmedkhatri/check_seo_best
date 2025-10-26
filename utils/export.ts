@@ -1,4 +1,5 @@
-import type { Keywords, SERPAnalysis, ContentBriefData, OptimizationResult, KeywordStrategyResult, TopicClusterResult, CompetitorKeywordAnalysisResult } from '../types';
+
+import type { Keywords, SERPAnalysis, ContentBriefData, OptimizationResult, KeywordStrategyResult, TopicClusterResult, CompetitorKeywordAnalysisResult, SEOAuditResult } from '../types';
 
 const sanitizeFileName = (name: string) => {
   // Replace spaces and special chars with underscores, keep it reasonably short
@@ -129,6 +130,27 @@ export const convertKeywordStrategyToCSV = (data: { keywordAnalysis: KeywordStra
       rows.push(['', '', '', kw]);
     });
   });
+
+  return rows.map(toCsvRow).join('\n');
+};
+
+export const convertSEOAuditToCSV = (data: SEOAuditResult): string => {
+  const rows: (string | number | undefined)[][] = [];
+  rows.push(['Category', 'Check', 'Status', 'Recommendation']);
+  
+  rows.push(['Overall Score', data.overallScore]);
+  rows.push([]);
+
+  rows.push(['On-Page SEO']);
+  data.onPageSeo?.forEach(item => rows.push(['', item.check, item.status, item.recommendation]));
+  rows.push([]);
+  
+  rows.push(['Content Quality']);
+  data.contentQuality?.forEach(item => rows.push(['', item.check, item.status, item.recommendation]));
+  rows.push([]);
+
+  rows.push(['Technical SEO']);
+  data.technicalSeo?.forEach(item => rows.push(['', item.check, item.status, item.recommendation]));
 
   return rows.map(toCsvRow).join('\n');
 };

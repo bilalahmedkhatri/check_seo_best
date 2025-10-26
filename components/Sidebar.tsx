@@ -23,13 +23,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNavItem, setActiveNavItem }) =>
         <button
           key={item.key}
           onClick={() => setActiveNavItem(item.key)}
-          className={`flex items-center space-x-3 p-3 rounded-lg text-left text-sm font-medium transition-all duration-200 ${
+          className={`flex items-center p-3 rounded-lg text-left text-sm font-medium transition-all duration-200 ${
             activeNavItem === item.key
               ? 'bg-brand-primary text-white'
               : 'text-gray-300 hover:bg-gray-700 hover:text-white'
           }`}
         >
-          {React.cloneElement(item.icon, { className: 'w-5 h-5' })}
+          {/* FIX: Property 'icon' does not exist on type 'NavItem'. */}
           <span>{item.label}</span>
         </button>
       ))}

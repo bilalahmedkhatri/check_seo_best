@@ -1,11 +1,11 @@
+
 import React from 'react';
 
-export type NavItemKey = 'keywordResearch' | 'serpMonitoring' | 'contentBrief' | 'onPageOptimizer' | 'keywordStrategist';
+export type NavItemKey = 'keywordResearch' | 'serpMonitoring' | 'contentBrief' | 'onPageOptimizer' | 'keywordStrategist' | 'seoAudit';
 
 export interface NavItem {
   key: NavItemKey;
   label: string;
-  icon: React.ReactElement<{ className?: string }>;
   title: string;
   description: string;
 }
@@ -72,6 +72,18 @@ export interface TopicClusterResult {
   topicClusters: TopicCluster[];
 }
 
+export interface AuditCheck {
+  check: string;
+  status: 'Pass' | 'Fail' | 'Warning' | 'Info';
+  recommendation: string;
+}
+
+export interface SEOAuditResult {
+  overallScore: number;
+  onPageSeo: AuditCheck[];
+  contentQuality: AuditCheck[];
+  technicalSeo: AuditCheck[];
+}
 
 // Saved result types
 export interface SavedKeywordResult {
@@ -121,4 +133,12 @@ export interface SavedKeywordStrategyResult {
     keywordAnalysis: KeywordStrategyResult;
     topicClusters: TopicClusterResult;
   }
+}
+
+export interface SavedSEOAuditResult {
+  id: number;
+  url: string;
+  keyword: string;
+  timestamp: string;
+  result: SEOAuditResult;
 }
