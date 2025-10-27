@@ -8,6 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertKeywordStrategyToCSV } from '../utils/export';
 import type { KeywordStrategyResult, TopicClusterResult, SavedKeywordStrategyResult, KeywordWithDescription } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_KEY = 'savedKeywordStrategies';
 
@@ -37,6 +38,7 @@ const KeywordStrategist: React.FC = () => {
   const [topicClusters, setTopicClusters] = useState<TopicClusterResult | null>(null);
 
   const [savedStrategies, setSavedStrategies] = useState<SavedKeywordStrategyResult[]>([]);
+  const { pushAction } = useHistory();
 
   useEffect(() => {
     try {
@@ -71,14 +73,14 @@ const KeywordStrategist: React.FC = () => {
   
   const handleStep2Submit = async () => {
     if (!keywordAnalysis) return;
+
+    const prevState = { topicClusters, savedStrategies, step };
+
     setIsLoading(true);
     setError(null);
     try {
       const result = await generateTopicClusters(keywordAnalysis);
-      setTopicClusters(result);
-      setStep(3);
-
-      // Save the complete strategy
+      
       const newSavedStrategy: SavedKeywordStrategyResult = {
         id: Date.now(),
         goal,
@@ -90,9 +92,24 @@ const KeywordStrategist: React.FC = () => {
           topicClusters: result,
         },
       };
-      const updatedSavedStrategies = [newSavedStrategy, ...savedStrategies];
-      setSavedStrategies(updatedSavedStrategies);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedStrategies));
+      const updatedSavedStrategies = [newSavedStrategy, ...prevState.savedStrategies];
+      
+      const redoAction = () => {
+        setTopicClusters(result);
+        setStep(3);
+        setSavedStrategies(updatedSavedStrategies);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedStrategies));
+      };
+
+      const undoAction = () => {
+        setTopicClusters(prevState.topicClusters);
+        setStep(prevState.step);
+        setSavedStrategies(prevState.savedStrategies);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedStrategies));
+      };
+      
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
       setError('Failed to create topic clusters. Please try again.');
@@ -126,9 +143,20 @@ const KeywordStrategist: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+    const prevState = { savedStrategies };
     const updatedStrategies = savedStrategies.filter(s => s.id !== id);
-    setSavedStrategies(updatedStrategies);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedStrategies));
+    
+    const redoAction = () => {
+      setSavedStrategies(updatedStrategies);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedStrategies));
+    };
+    const undoAction = () => {
+      setSavedStrategies(prevState.savedStrategies);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedStrategies));
+    };
+
+    redoAction();
+    pushAction({ undo: undoAction, redo: redoAction });
   };
 
 

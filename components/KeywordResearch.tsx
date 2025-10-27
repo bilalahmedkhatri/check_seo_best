@@ -6,7 +6,8 @@ import Button from './Button';
 import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertKeywordsToCSV } from '../utils/export';
-import type { Keywords, SavedKeywordResult } from '../types';
+import type { Keywords, SavedKeywordResult, KeywordWithVolume } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_KEY = 'savedKeywordAnalyses';
 
@@ -16,6 +17,7 @@ const KeywordResearch: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedResults, setSavedResults] = useState<SavedKeywordResult[]>([]);
+  const { pushAction } = useHistory();
 
   useEffect(() => {
     try {
@@ -34,12 +36,14 @@ const KeywordResearch: React.FC = () => {
       setError('Please enter a topic.');
       return;
     }
+    
+    const prevState = { topic, keywords, savedResults };
+
     setIsLoading(true);
     setError(null);
     setKeywords(null);
     try {
       const result = await generateKeywords(topic);
-      setKeywords(result);
       
       const newSavedResult: SavedKeywordResult = {
         id: Date.now(),
@@ -47,9 +51,23 @@ const KeywordResearch: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: result,
       };
-      const updatedSavedResults = [newSavedResult, ...savedResults];
-      setSavedResults(updatedSavedResults);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedResults));
+      const updatedSavedResults = [newSavedResult, ...prevState.savedResults];
+      
+      const redoAction = () => {
+        setKeywords(result);
+        setSavedResults(updatedSavedResults);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedResults));
+      };
+
+      const undoAction = () => {
+        setTopic(prevState.topic);
+        setKeywords(prevState.keywords);
+        setSavedResults(prevState.savedResults);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedResults));
+      };
+
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
       setError('Failed to generate keywords. Please try again.');
@@ -69,22 +87,37 @@ const KeywordResearch: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+      const prevState = { savedResults };
       const updatedSavedResults = savedResults.filter(r => r.id !== id);
-      setSavedResults(updatedSavedResults);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedResults));
+      
+      const redoAction = () => {
+        setSavedResults(updatedSavedResults);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedResults));
+      };
+      
+      const undoAction = () => {
+        setSavedResults(prevState.savedResults);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedResults));
+      };
+
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
   };
 
 
-  const renderKeywordList = (title: string, keywords: string[] | undefined) => {
+  const renderKeywordList = (title: string, keywords: KeywordWithVolume[] | undefined) => {
     if (!Array.isArray(keywords) || keywords.length === 0) {
       return null;
     }
     return (
       <div key={title}>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mt-4 mb-2">{title}</h3>
-        <ul className="list-disc list-inside space-y-1">
+        <ul className="space-y-2">
           {keywords.map((kw, index) => (
-            <li key={index} className="text-gray-600 dark:text-gray-300">{kw}</li>
+            <li key={index} className="flex justify-between items-center text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-2 rounded-md">
+              <span>{kw.keyword}</span>
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full">{kw.searchVolume}</span>
+            </li>
           ))}
         </ul>
       </div>

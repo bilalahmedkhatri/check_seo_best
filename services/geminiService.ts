@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { KeywordStrategyResult } from '../types';
 
@@ -10,21 +9,36 @@ if (!API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
+const keywordWithVolumeSchema = {
+    type: Type.ARRAY,
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            keyword: { type: Type.STRING },
+            searchVolume: {
+                type: Type.STRING,
+                description: "Estimated monthly search volume, e.g., '1.2K', '500', '10K-50K'"
+            }
+        },
+        required: ['keyword', 'searchVolume']
+    }
+};
+
 export const generateKeywords = async (topic: string) => {
     // FIX: Refactored to use systemInstruction for persona.
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: `Given the topic "${topic}", generate a comprehensive list of related keywords. Categorize them into 'Primary Keywords', 'Long-Tail Keywords', 'Question-Based Keywords', and 'LSI Keywords'.`,
+        contents: `Given the topic "${topic}", generate a comprehensive list of related keywords. For each keyword, provide an estimated monthly search volume. Categorize them into 'Primary Keywords', 'Long-Tail Keywords', 'Question-Based Keywords', and 'LSI Keywords'.`,
         config: {
-            systemInstruction: "You are an expert SEO keyword researcher.",
+            systemInstruction: "You are an expert SEO keyword researcher who can estimate search volumes.",
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
                 properties: {
-                    primaryKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    longTailKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    questionBasedKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    lsiKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    primaryKeywords: keywordWithVolumeSchema,
+                    longTailKeywords: keywordWithVolumeSchema,
+                    questionBasedKeywords: keywordWithVolumeSchema,
+                    lsiKeywords: keywordWithVolumeSchema,
                 }
             }
         }

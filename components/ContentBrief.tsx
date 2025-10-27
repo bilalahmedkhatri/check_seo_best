@@ -7,6 +7,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertContentBriefToCSV } from '../utils/export';
 import type { ContentBriefData, SavedContentBriefResult } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_KEY = 'savedContentBriefs';
 
@@ -16,6 +17,7 @@ const ContentBrief: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedBriefs, setSavedBriefs] = useState<SavedContentBriefResult[]>([]);
+  const { pushAction } = useHistory();
 
   useEffect(() => {
     try {
@@ -34,12 +36,14 @@ const ContentBrief: React.FC = () => {
       setError('Please enter a target keyword.');
       return;
     }
+
+    const prevState = { keyword, brief, savedBriefs };
+
     setIsLoading(true);
     setError(null);
     setBrief(null);
     try {
       const result = await createContentBrief(keyword);
-      setBrief(result);
 
       const newSavedBrief: SavedContentBriefResult = {
         id: Date.now(),
@@ -47,9 +51,23 @@ const ContentBrief: React.FC = () => {
         timestamp: new Date().toISOString(),
         result,
       };
-      const updatedSavedBriefs = [newSavedBrief, ...savedBriefs];
-      setSavedBriefs(updatedSavedBriefs);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedBriefs));
+      const updatedSavedBriefs = [newSavedBrief, ...prevState.savedBriefs];
+      
+      const redoAction = () => {
+        setBrief(result);
+        setSavedBriefs(updatedSavedBriefs);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedBriefs));
+      };
+
+      const undoAction = () => {
+        setKeyword(prevState.keyword);
+        setBrief(prevState.brief);
+        setSavedBriefs(prevState.savedBriefs);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedBriefs));
+      };
+
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
       setError('Failed to create content brief. Please try again.');
@@ -69,9 +87,20 @@ const ContentBrief: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+      const prevState = { savedBriefs };
       const updatedSavedBriefs = savedBriefs.filter(b => b.id !== id);
-      setSavedBriefs(updatedSavedBriefs);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedBriefs));
+      
+      const redoAction = () => {
+        setSavedBriefs(updatedSavedBriefs);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedBriefs));
+      };
+      const undoAction = () => {
+        setSavedBriefs(prevState.savedBriefs);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedBriefs));
+      };
+
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
   };
 
 

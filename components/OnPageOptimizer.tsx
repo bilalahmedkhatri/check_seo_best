@@ -8,6 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertOptimizerResultToCSV } from '../utils/export';
 import type { OptimizationResult, SavedOptimizerResult } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_KEY = 'savedOptimizerReports';
 
@@ -18,6 +19,7 @@ const OnPageOptimizer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedReports, setSavedReports] = useState<SavedOptimizerResult[]>([]);
+  const { pushAction } = useHistory();
 
   useEffect(() => {
     try {
@@ -37,12 +39,14 @@ const OnPageOptimizer: React.FC = () => {
       setError('Please enter a keyword and content to optimize.');
       return;
     }
+    
+    const prevState = { keyword, content, result, savedReports };
+
     setIsLoading(true);
     setError(null);
     setResult(null);
     try {
       const apiResult = await optimizeContent(keyword, content);
-      setResult(apiResult);
       
       const newSavedReport: SavedOptimizerResult = {
         id: Date.now(),
@@ -51,9 +55,24 @@ const OnPageOptimizer: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: apiResult
       };
-      const updatedSavedReports = [newSavedReport, ...savedReports];
-      setSavedReports(updatedSavedReports);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedReports));
+      const updatedSavedReports = [newSavedReport, ...prevState.savedReports];
+      
+      const redoAction = () => {
+        setResult(apiResult);
+        setSavedReports(updatedSavedReports);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedReports));
+      };
+
+      const undoAction = () => {
+        setKeyword(prevState.keyword);
+        setContent(prevState.content);
+        setResult(prevState.result);
+        setSavedReports(prevState.savedReports);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedReports));
+      };
+      
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
       
     } catch (e) {
       setError('Failed to optimize content. Please try again.');
@@ -74,9 +93,20 @@ const OnPageOptimizer: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+      const prevState = { savedReports };
       const updatedSavedReports = savedReports.filter(r => r.id !== id);
-      setSavedReports(updatedSavedReports);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedReports));
+
+      const redoAction = () => {
+        setSavedReports(updatedSavedReports);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedReports));
+      };
+      const undoAction = () => {
+        setSavedReports(prevState.savedReports);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedReports));
+      };
+      
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
   };
   
   const getScoreColor = (score: number) => {

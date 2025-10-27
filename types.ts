@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export type NavItemKey = 'keywordResearch' | 'serpMonitoring' | 'contentBrief' | 'onPageOptimizer' | 'keywordStrategist' | 'seoAudit';
@@ -11,11 +10,16 @@ export interface NavItem {
 }
 
 // Result types
+export interface KeywordWithVolume {
+  keyword: string;
+  searchVolume: string;
+}
+
 export interface Keywords {
-  primaryKeywords: string[];
-  longTailKeywords: string[];
-  questionBasedKeywords: string[];
-  lsiKeywords: string[];
+  primaryKeywords: KeywordWithVolume[];
+  longTailKeywords: KeywordWithVolume[];
+  questionBasedKeywords: KeywordWithVolume[];
+  lsiKeywords: KeywordWithVolume[];
 }
 
 export interface SERPAnalysis {

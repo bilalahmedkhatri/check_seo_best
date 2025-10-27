@@ -1,4 +1,3 @@
-
 import type { Keywords, SERPAnalysis, ContentBriefData, OptimizationResult, KeywordStrategyResult, TopicClusterResult, CompetitorKeywordAnalysisResult, SEOAuditResult } from '../types';
 
 const sanitizeFileName = (name: string) => {
@@ -47,11 +46,11 @@ const toCsvRow = (row: (string | number | undefined)[]) => {
 
 export const convertKeywordsToCSV = (data: Keywords): string => {
   const rows: (string | number | undefined)[][] = [];
-  rows.push(['type', 'keyword']);
-  data.primaryKeywords?.forEach(kw => rows.push(['Primary Keyword', kw]));
-  data.longTailKeywords?.forEach(kw => rows.push(['Long-Tail Keyword', kw]));
-  data.questionBasedKeywords?.forEach(kw => rows.push(['Question-Based Keyword', kw]));
-  data.lsiKeywords?.forEach(kw => rows.push(['LSI Keyword', kw]));
+  rows.push(['type', 'keyword', 'searchVolume']);
+  data.primaryKeywords?.forEach(kw => rows.push(['Primary Keyword', kw.keyword, kw.searchVolume]));
+  data.longTailKeywords?.forEach(kw => rows.push(['Long-Tail Keyword', kw.keyword, kw.searchVolume]));
+  data.questionBasedKeywords?.forEach(kw => rows.push(['Question-Based Keyword', kw.keyword, kw.searchVolume]));
+  data.lsiKeywords?.forEach(kw => rows.push(['LSI Keyword', kw.keyword, kw.searchVolume]));
   return rows.map(toCsvRow).join('\n');
 };
 

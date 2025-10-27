@@ -10,6 +10,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { NAV_ITEMS } from './constants';
 import type { NavItemKey } from './types';
+import { useHistory } from './contexts/HistoryContext';
 
 const getNavItemKeyFromHash = (): NavItemKey => {
   const hash = window.location.hash.substring(2); // Remove #/
@@ -20,10 +21,12 @@ const getNavItemKeyFromHash = (): NavItemKey => {
 
 const App: React.FC = () => {
   const [activeNavItem, setActiveNavItem] = useState<NavItemKey>(getNavItemKeyFromHash());
+  const { clearHistory } = useHistory();
 
   useEffect(() => {
     const handleHashChange = () => {
       setActiveNavItem(getNavItemKeyFromHash());
+      clearHistory();
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -36,7 +39,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, []);
+  }, [clearHistory]);
 
   // Effect to update head tags (title, meta description) for SEO
   useEffect(() => {

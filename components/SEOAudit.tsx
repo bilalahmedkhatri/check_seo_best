@@ -8,6 +8,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertSEOAuditToCSV } from '../utils/export';
 import type { SEOAuditResult, SavedSEOAuditResult, AuditCheck } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_KEY = 'savedSeoAudits';
 
@@ -18,6 +19,7 @@ const SEOAudit: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAudits, setSavedAudits] = useState<SavedSEOAuditResult[]>([]);
+  const { pushAction } = useHistory();
 
   useEffect(() => {
     try {
@@ -36,12 +38,14 @@ const SEOAudit: React.FC = () => {
       setError('Please enter both a URL and a focus keyword.');
       return;
     }
+    
+    const prevState = { url, keyword, result, savedAudits };
+
     setIsLoading(true);
     setError(null);
     setResult(null);
     try {
       const auditResult = await auditSEO(url, keyword);
-      setResult(auditResult);
 
       const newSavedAudit: SavedSEOAuditResult = {
         id: Date.now(),
@@ -50,9 +54,24 @@ const SEOAudit: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: auditResult,
       };
-      const updatedSavedAudits = [newSavedAudit, ...savedAudits];
-      setSavedAudits(updatedSavedAudits);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedAudits));
+      const updatedSavedAudits = [newSavedAudit, ...prevState.savedAudits];
+      
+      const redoAction = () => {
+        setResult(auditResult);
+        setSavedAudits(updatedSavedAudits);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedAudits));
+      };
+      
+      const undoAction = () => {
+        setUrl(prevState.url);
+        setKeyword(prevState.keyword);
+        setResult(prevState.result);
+        setSavedAudits(prevState.savedAudits);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedAudits));
+      };
+
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
       const err = e as Error;
@@ -74,9 +93,21 @@ const SEOAudit: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
+    const prevState = { savedAudits };
     const updatedSavedAudits = savedAudits.filter(a => a.id !== id);
-    setSavedAudits(updatedSavedAudits);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedAudits));
+    
+    const redoAction = () => {
+      setSavedAudits(updatedSavedAudits);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedAudits));
+    };
+
+    const undoAction = () => {
+      setSavedAudits(prevState.savedAudits);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(prevState.savedAudits));
+    };
+    
+    redoAction();
+    pushAction({ undo: undoAction, redo: redoAction });
   };
 
   const getScoreColor = (score: number) => {

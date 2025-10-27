@@ -5,6 +5,7 @@ import anime from 'animejs';
 import { NAV_ITEMS } from '../constants';
 import type { NavItemKey } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
+import { useHistory } from '../contexts/HistoryContext';
 
 const HamburgerIcon: React.FC = () => (
   <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -30,6 +31,18 @@ const MoonIcon: React.FC = () => (
     </svg>
 );
 
+const UndoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 010 10H9" />
+    </svg>
+);
+
+const RedoIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 15l3-3m0 0l-3-3m3 3H5a5 5 0 000 10h1" />
+    </svg>
+);
+
 interface HeaderProps {
   activeNavItem: NavItemKey;
 }
@@ -38,6 +51,7 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
   const currentItem = NAV_ITEMS.find(item => item.key === activeNavItem);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { undo, redo, canUndo, canRedo } = useHistory();
 
   const navLinksRef = useRef<Map<NavItemKey, HTMLAnchorElement | null>>(new Map());
   const activeUnderlineRef = useRef<HTMLDivElement>(null);
@@ -92,34 +106,51 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
             <p className="text-xl font-bold text-gray-900 dark:text-white">AI SEO Studio</p>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-1 relative">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.key}
-                ref={el => { navLinksRef.current.set(item.key, el) }}
-                href={`#/${item.key}`}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  activeNavItem === item.key
-                    ? 'text-brand-primary'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary'
-                }`}
-                aria-current={activeNavItem === item.key ? 'page' : undefined}
-              >
-                <span>{item.label}</span>
-              </a>
-            ))}
-            <div
-                ref={activeUnderlineRef}
-                className="absolute bottom-0 h-0.5 bg-brand-primary"
-                style={{ willChange: 'left, width' }}
-            />
-             <button onClick={toggleTheme} className="ml-4 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-              {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-            </button>
-          </nav>
+          <div className="flex items-center">
+            <nav className="hidden md:flex items-center space-x-1 relative">
+              {NAV_ITEMS.map((item) => (
+                <a
+                  key={item.key}
+                  ref={el => { navLinksRef.current.set(item.key, el) }}
+                  href={`#/${item.key}`}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    activeNavItem === item.key
+                      ? 'text-brand-primary'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary'
+                  }`}
+                  aria-current={activeNavItem === item.key ? 'page' : undefined}
+                >
+                  <span>{item.label}</span>
+                </a>
+              ))}
+              <div
+                  ref={activeUnderlineRef}
+                  className="absolute bottom-0 h-0.5 bg-brand-primary"
+                  style={{ willChange: 'left, width' }}
+              />
+            </nav>
+            <div className="flex items-center ml-4">
+               <button onClick={undo} disabled={!canUndo} title="Undo" className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                  <UndoIcon />
+              </button>
+              <button onClick={redo} disabled={!canRedo} title="Redo" className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                  <RedoIcon />
+              </button>
+              <div className="h-6 w-px bg-gray-200 dark:bg-gray-600 mx-2"></div>
+              <button onClick={toggleTheme} className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+              </button>
+            </div>
+          </div>
           
           <div className="md:hidden flex items-center">
-             <button onClick={toggleTheme} className="mr-2 p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+             <button onClick={undo} disabled={!canUndo} title="Undo" className="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                  <UndoIcon />
+              </button>
+              <button onClick={redo} disabled={!canRedo} title="Redo" className="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                  <RedoIcon />
+              </button>
+             <button onClick={toggleTheme} className="mx-2 p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
               {theme === 'light' ? <MoonIcon /> : <SunIcon />}
             </button>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-primary">

@@ -7,6 +7,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertSERPToCSV, convertCompetitorKeywordsToCSV } from '../utils/export';
 import type { SERPAnalysis, SavedSERPResult, CompetitorKeywordAnalysisResult, SavedCompetitorKeywordResult } from '../types';
+import { useHistory } from '../contexts/HistoryContext';
 
 const LOCAL_STORAGE_SERP_KEY = 'savedSerpAnalyses';
 const LOCAL_STORAGE_COMPETITOR_KEY = 'savedCompetitorKeywordAnalyses';
@@ -26,6 +27,8 @@ const SERPMonitoring: React.FC = () => {
   const [isCompetitorLoading, setIsCompetitorLoading] = useState(false);
   const [competitorError, setCompetitorError] = useState<string | null>(null);
   const [savedCompetitorResults, setSavedCompetitorResults] = useState<SavedCompetitorKeywordResult[]>([]);
+  
+  const { pushAction } = useHistory();
 
 
   useEffect(() => {
@@ -47,12 +50,14 @@ const SERPMonitoring: React.FC = () => {
       setSerpError('Please enter both a keyword and your domain.');
       return;
     }
+    
+    const prevState = { keyword, userDomain, analysisResult, savedSerpResults };
+
     setIsSerpLoading(true);
     setSerpError(null);
     setAnalysisResult(null);
     try {
       const result = await analyzeSERP(keyword, userDomain);
-      setAnalysisResult(result);
 
       const newSavedResult: SavedSERPResult = {
         id: Date.now(),
@@ -61,9 +66,24 @@ const SERPMonitoring: React.FC = () => {
         timestamp: new Date().toISOString(),
         result,
       };
-      const updatedSavedResults = [newSavedResult, ...savedSerpResults];
-      setSavedSerpResults(updatedSavedResults);
-      localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(updatedSavedResults));
+      const updatedSavedResults = [newSavedResult, ...prevState.savedSerpResults];
+      
+      const redoAction = () => {
+        setAnalysisResult(result);
+        setSavedSerpResults(updatedSavedResults);
+        localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(updatedSavedResults));
+      };
+
+      const undoAction = () => {
+        setKeyword(prevState.keyword);
+        setUserDomain(prevState.userDomain);
+        setAnalysisResult(prevState.analysisResult);
+        setSavedSerpResults(prevState.savedSerpResults);
+        localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(prevState.savedSerpResults));
+      };
+      
+      redoAction();
+      pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
       const err = e as Error;
@@ -79,12 +99,14 @@ const SERPMonitoring: React.FC = () => {
         setCompetitorError('Please enter a competitor domain.');
         return;
     }
+
+    const prevState = { competitorDomain, competitorResult, savedCompetitorResults };
+
     setIsCompetitorLoading(true);
     setCompetitorError(null);
     setCompetitorResult(null);
     try {
         const result = await findCompetitorKeywords(competitorDomain);
-        setCompetitorResult(result);
 
         const newSavedResult: SavedCompetitorKeywordResult = {
           id: Date.now(),
@@ -92,9 +114,23 @@ const SERPMonitoring: React.FC = () => {
           timestamp: new Date().toISOString(),
           result,
         };
-        const updatedSavedResults = [newSavedResult, ...savedCompetitorResults];
-        setSavedCompetitorResults(updatedSavedResults);
-        localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(updatedSavedResults));
+        const updatedSavedResults = [newSavedResult, ...prevState.savedCompetitorResults];
+        
+        const redoAction = () => {
+          setCompetitorResult(result);
+          setSavedCompetitorResults(updatedSavedResults);
+          localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(updatedSavedResults));
+        };
+
+        const undoAction = () => {
+          setCompetitorDomain(prevState.competitorDomain);
+          setCompetitorResult(prevState.competitorResult);
+          setSavedCompetitorResults(prevState.savedCompetitorResults);
+          localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(prevState.savedCompetitorResults));
+        };
+
+        redoAction();
+        pushAction({ undo: undoAction, redo: redoAction });
 
     } catch (e) {
         const err = e as Error;
@@ -116,9 +152,20 @@ const SERPMonitoring: React.FC = () => {
   };
 
   const handleDeleteSERP = (id: number) => {
+    const prevState = { savedSerpResults };
     const updatedSavedResults = savedSerpResults.filter(r => r.id !== id);
-    setSavedSerpResults(updatedSavedResults);
-    localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(updatedSavedResults));
+    
+    const redoAction = () => {
+      setSavedSerpResults(updatedSavedResults);
+      localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(updatedSavedResults));
+    };
+    const undoAction = () => {
+      setSavedSerpResults(prevState.savedSerpResults);
+      localStorage.setItem(LOCAL_STORAGE_SERP_KEY, JSON.stringify(prevState.savedSerpResults));
+    };
+
+    redoAction();
+    pushAction({ undo: undoAction, redo: redoAction });
   };
 
   const handleViewCompetitor = (id: number) => {
@@ -131,9 +178,20 @@ const SERPMonitoring: React.FC = () => {
   };
 
   const handleDeleteCompetitor = (id: number) => {
+    const prevState = { savedCompetitorResults };
     const updatedSavedResults = savedCompetitorResults.filter(r => r.id !== id);
-    setSavedCompetitorResults(updatedSavedResults);
-    localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(updatedSavedResults));
+
+    const redoAction = () => {
+      setSavedCompetitorResults(updatedSavedResults);
+      localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(updatedSavedResults));
+    };
+    const undoAction = () => {
+      setSavedCompetitorResults(prevState.savedCompetitorResults);
+      localStorage.setItem(LOCAL_STORAGE_COMPETITOR_KEY, JSON.stringify(prevState.savedCompetitorResults));
+    };
+    
+    redoAction();
+    pushAction({ undo: undoAction, redo: redoAction });
   };
 
 
