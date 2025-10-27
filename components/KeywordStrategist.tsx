@@ -9,6 +9,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertKeywordStrategyToCSV } from '../utils/export';
 import type { KeywordStrategyResult, TopicClusterResult, SavedKeywordStrategyResult, KeywordWithDescription } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = 'savedKeywordStrategies';
 
@@ -92,7 +93,7 @@ const KeywordStrategist: React.FC = () => {
           topicClusters: result,
         },
       };
-      const updatedSavedStrategies = [newSavedStrategy, ...prevState.savedStrategies];
+      const updatedSavedStrategies = [newSavedStrategy, ...savedStrategies];
       
       const redoAction = () => {
         setTopicClusters(result);
@@ -176,6 +177,13 @@ const KeywordStrategist: React.FC = () => {
 
   return (
     <div className="space-y-6">
+       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Building a Topic Cluster Strategy</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>A modern keyword strategy goes beyond targeting individual keywords. To establish authority and rank for competitive terms, you need to build topic clusters. This involves creating a central "pillar" page that provides a broad overview of a topic, and then surrounding it with multiple "cluster" pages that delve into specific subtopics in greater detail. These pages all link to each other, signaling to Google that you are an expert on the subject.</p>
+          <p>This multi-step tool guides you through creating a powerful topic cluster model. You start by defining your goals and audience, then the AI generates keyword ideas categorized by user intent. Finally, it organizes these keywords into logical pillar and cluster groups, giving you a clear content roadmap. If you need more initial ideas, our basic <Link to="/keywordResearch" className="text-brand-primary hover:underline">Keyword Research</Link> tool is a great place to start.</p>
+        </div>
+      </Card>
       <Card>
         <ProgressBar currentStep={step} totalSteps={3} />
         {step === 1 && (
@@ -209,7 +217,10 @@ const KeywordStrategist: React.FC = () => {
             {renderKeywords("Informational Keywords", keywordAnalysis.informationalKeywords)}
             {renderKeywords("Commercial Keywords", keywordAnalysis.commercialKeywords)}
             {renderKeywords("Transactional Keywords", keywordAnalysis.transactionalKeywords)}
-            <Button onClick={handleStep2Submit} isLoading={isLoading}>Create Topic Clusters</Button>
+            <div className="flex gap-2">
+                <Button onClick={() => setStep(1)}>Back</Button>
+                <Button onClick={handleStep2Submit} isLoading={isLoading}>Create Topic Clusters</Button>
+            </div>
           </div>
         )}
 

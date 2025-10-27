@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-// FIX: Changed the import to use the direct 'animejs' mapping from the import map
-// for better reliability and to resolve potential loading failures.
 import anime from 'animejs';
+import { Link } from 'react-router-dom';
 import { NAV_ITEMS } from '../constants';
 import type { NavItemKey } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
@@ -66,8 +65,6 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
     const underline = activeUnderlineRef.current;
 
     if (activeLink && underline) {
-        // FIX: The imported `anime` is a module namespace instead of the function itself due to a module resolution issue.
-        // The actual function is likely on the `default` property. This handles both cases.
         const animeFn = (anime as any).default || anime;
         animeFn({
             targets: underline,
@@ -87,10 +84,22 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
         if (activeLink && underline) {
             underline.style.left = `${activeLink.offsetLeft}px`;
             underline.style.width = `${activeLink.offsetWidth}px`;
+            underline.style.transition = 'none'; // Disable transition during resize
         }
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    // Re-enable transition after resize
+    const handleResizeEnd = () => {
+        const underline = activeUnderlineRef.current;
+        if (underline) {
+            underline.style.transition = '';
+        }
+    }
+    window.addEventListener('mouseup', handleResizeEnd);
+    return () => {
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('mouseup', handleResizeEnd);
+    }
   }, [activeNavItem]);
 
   return (
@@ -109,10 +118,10 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
           <div className="flex items-center">
             <nav className="hidden md:flex items-center space-x-1 relative">
               {NAV_ITEMS.map((item) => (
-                <a
+                <Link
                   key={item.key}
                   ref={el => { navLinksRef.current.set(item.key, el) }}
-                  href={`#/${item.key}`}
+                  to={`/${item.key}`}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     activeNavItem === item.key
                       ? 'text-brand-primary'
@@ -121,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
                   aria-current={activeNavItem === item.key ? 'page' : undefined}
                 >
                   <span>{item.label}</span>
-                </a>
+                </Link>
               ))}
               <div
                   ref={activeUnderlineRef}
@@ -165,9 +174,9 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
         <nav className="md:hidden border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {NAV_ITEMS.map((item) => (
-              <a
+              <Link
                 key={item.key}
-                href={`#/${item.key}`}
+                to={`/${item.key}`}
                 onClick={handleMenuLinkClick}
                 className={`block w-full px-3 py-2 rounded-lg text-base font-medium transition-colors duration-200 text-left ${
                   activeNavItem === item.key
@@ -177,7 +186,7 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
                 aria-current={activeNavItem === item.key ? 'page' : undefined}
               >
                 <span>{item.label}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </nav>

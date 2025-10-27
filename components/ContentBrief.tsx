@@ -8,6 +8,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertContentBriefToCSV } from '../utils/export';
 import type { ContentBriefData, SavedContentBriefResult } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = 'savedContentBriefs';
 
@@ -51,7 +52,7 @@ const ContentBrief: React.FC = () => {
         timestamp: new Date().toISOString(),
         result,
       };
-      const updatedSavedBriefs = [newSavedBrief, ...prevState.savedBriefs];
+      const updatedSavedBriefs = [newSavedBrief, ...savedBriefs];
       
       const redoAction = () => {
         setBrief(result);
@@ -107,6 +108,14 @@ const ContentBrief: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">The Power of a Great Content Brief</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>A content brief is a detailed set of instructions for a writer creating a piece of content. It acts as a blueprint, ensuring the final article is perfectly aligned with your SEO goals, target audience, and brand voice. Creating a thorough brief is the most effective way to scale content production without sacrificing quality or ranking potential. It bridges the gap between your SEO strategy and the creative writing process.</p>
+          <p>This tool automates the creation of SEO-focused content briefs. Just provide a target keyword, and our AI will generate a comprehensive plan, including a suggested title, meta description, a detailed outline with headings, LSI keywords, and more. This saves you hours of manual research and empowers your writers to create high-quality content that performs. Once your content is written, be sure to run it through our <Link to="/onPageOptimizer" className="text-brand-primary hover:underline">On-Page Optimizer</Link> for a final check.</p>
+        </div>
+      </Card>
+      <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Generate a New Content Brief</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
             type="text"

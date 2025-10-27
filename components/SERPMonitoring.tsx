@@ -8,6 +8,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertSERPToCSV, convertCompetitorKeywordsToCSV } from '../utils/export';
 import type { SERPAnalysis, SavedSERPResult, CompetitorKeywordAnalysisResult, SavedCompetitorKeywordResult } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_SERP_KEY = 'savedSerpAnalyses';
 const LOCAL_STORAGE_COMPETITOR_KEY = 'savedCompetitorKeywordAnalyses';
@@ -66,7 +67,7 @@ const SERPMonitoring: React.FC = () => {
         timestamp: new Date().toISOString(),
         result,
       };
-      const updatedSavedResults = [newSavedResult, ...prevState.savedSerpResults];
+      const updatedSavedResults = [newSavedResult, ...savedSerpResults];
       
       const redoAction = () => {
         setAnalysisResult(result);
@@ -114,7 +115,7 @@ const SERPMonitoring: React.FC = () => {
           timestamp: new Date().toISOString(),
           result,
         };
-        const updatedSavedResults = [newSavedResult, ...prevState.savedCompetitorResults];
+        const updatedSavedResults = [newSavedResult, ...savedCompetitorResults];
         
         const redoAction = () => {
           setCompetitorResult(result);
@@ -197,6 +198,13 @@ const SERPMonitoring: React.FC = () => {
 
   return (
     <div className="space-y-6">
+       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What is SERP Analysis?</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>A Search Engine Results Page (SERP) is what you see after you search for something on Google. Analyzing the SERP for your target keywords is critical for understanding the competitive landscape. It reveals who is currently ranking, what kind of content they are creating, and the search intent behind the query. This information is vital for crafting a strategy to reach the top positions.</p>
+          <p>This tool provides two powerful functions. First, you can analyze the SERP for a specific keyword to see the top 5 competitors and get AI-powered recommendations tailored to your domain. Second, you can perform keyword discovery on a competitor's domain to uncover the terms they rank for. This intelligence can inform your own <Link to="/contentBrief" className="text-brand-primary hover:underline">content briefs</Link> and help you find gaps in their strategy. A full <Link to="/seoAudit" className="text-brand-primary hover:underline">SEO Audit</Link> can also provide a deeper technical overview of your own site.</p>
+        </div>
+      </Card>
       {/* SERP Analysis Section */}
       <Card>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Analyze SERP for a Keyword</h2>

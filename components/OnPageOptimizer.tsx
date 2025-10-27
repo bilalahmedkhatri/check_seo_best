@@ -9,6 +9,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertOptimizerResultToCSV } from '../utils/export';
 import type { OptimizationResult, SavedOptimizerResult } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = 'savedOptimizerReports';
 
@@ -55,7 +56,7 @@ const OnPageOptimizer: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: apiResult
       };
-      const updatedSavedReports = [newSavedReport, ...prevState.savedReports];
+      const updatedSavedReports = [newSavedReport, ...savedReports];
       
       const redoAction = () => {
         setResult(apiResult);
@@ -117,7 +118,15 @@ const OnPageOptimizer: React.FC = () => {
 
   return (
     <div className="space-y-6">
+       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Mastering On-Page SEO</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>On-page SEO involves optimizing the elements within your website's pages to improve their visibility and ranking in search results. This includes the content itself, as well as HTML elements like title tags, headings, and meta descriptions. Unlike off-page SEO, which involves external signals like backlinks, you have direct control over on-page factors. Fine-tuning these elements is a high-impact activity that can quickly improve your organic performance.</p>
+          <p>This tool acts as your personal on-page SEO consultant. Simply paste your content and provide a target keyword, and our AI will analyze it against best practices. You'll receive an overall SEO score and specific, actionable recommendations for keyword usage, readability, metadata, and more. For a broader view of your site's health beyond a single page, try our comprehensive <Link to="/seoAudit" className="text-brand-primary hover:underline">AI Website SEO Audit</Link> tool.</p>
+        </div>
+      </Card>
       <Card>
+         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Analyze Your Content</h2>
         <div className="space-y-3">
           <Input
             type="text"

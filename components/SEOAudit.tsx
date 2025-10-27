@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { auditSEO } from '../services/geminiService';
 import Card from './Card';
@@ -9,6 +8,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertSEOAuditToCSV } from '../utils/export';
 import type { SEOAuditResult, SavedSEOAuditResult, AuditCheck } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = 'savedSeoAudits';
 
@@ -54,7 +54,7 @@ const SEOAudit: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: auditResult,
       };
-      const updatedSavedAudits = [newSavedAudit, ...prevState.savedAudits];
+      const updatedSavedAudits = [newSavedAudit, ...savedAudits];
       
       const redoAction = () => {
         setResult(auditResult);
@@ -152,6 +152,14 @@ const SEOAudit: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Conducting a Website SEO Audit</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>A website SEO audit is a comprehensive health check for your site. It involves analyzing various factors that impact your ability to rank in search engines, including technical aspects, on-page elements, and content quality. Regularly auditing your site helps you identify and fix issues that could be holding you back from achieving higher rankings, better traffic, and more conversions. It is a proactive way to maintain and improve your site's SEO performance over time.</p>
+          <p>Our AI-powered audit tool simplifies this complex process. Enter your URL and a focus keyword, and the tool will perform a detailed analysis of on-page SEO, content quality, and key technical areas. You'll receive an overall score and a prioritized list of actionable recommendations. While this audit focuses on a single page, you can use the <Link to="/serpMonitoring" className="text-brand-primary hover:underline">SERP Monitoring</Link> tool to analyze your competitors' pages and find more opportunities.</p>
+        </div>
+      </Card>
+      <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Start a New Audit</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
             type="url"

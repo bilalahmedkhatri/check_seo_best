@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HistoryProvider } from './contexts/HistoryContext';
@@ -12,10 +13,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <HistoryProvider>
-        <App />
-      </HistoryProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <HistoryProvider>
+          <App />
+        </HistoryProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

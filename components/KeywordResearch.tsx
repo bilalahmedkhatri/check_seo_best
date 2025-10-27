@@ -8,6 +8,7 @@ import ExportDropdown from './ExportDropdown';
 import { exportAsJSON, exportAsCSV, convertKeywordsToCSV } from '../utils/export';
 import type { Keywords, SavedKeywordResult, KeywordWithVolume } from '../types';
 import { useHistory } from '../contexts/HistoryContext';
+import { Link } from 'react-router-dom';
 
 const LOCAL_STORAGE_KEY = 'savedKeywordAnalyses';
 
@@ -51,7 +52,7 @@ const KeywordResearch: React.FC = () => {
         timestamp: new Date().toISOString(),
         result: result,
       };
-      const updatedSavedResults = [newSavedResult, ...prevState.savedResults];
+      const updatedSavedResults = [newSavedResult, ...savedResults];
       
       const redoAction = () => {
         setKeywords(result);
@@ -126,7 +127,15 @@ const KeywordResearch: React.FC = () => {
 
   return (
     <div className="space-y-6">
+       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Understanding Keyword Research</h2>
+        <div className="text-gray-600 dark:text-gray-300 space-y-3 prose prose-sm max-w-none dark:prose-invert">
+          <p>Keyword research is the cornerstone of any successful SEO strategy. It is the process of finding and analyzing the terms people use to search for information, products, or services online. By understanding these queries, you can create targeted content that meets user needs and drives organic traffic to your website. Effective keyword research allows you to get inside the head of your target audience.</p>
+          <p>This tool helps you automate that process. Simply enter a broad topic, and our AI will generate lists of primary keywords, long-tail variations, and common questions your audience is asking. Use these insights to brainstorm content ideas, optimize existing pages, and build a content plan that covers your entire niche. For a more structured approach, consider using our <Link to="/keywordStrategist" className="text-brand-primary hover:underline">AI Keyword Strategist</Link> to organize these keywords into powerful topic clusters.</p>
+        </div>
+      </Card>
       <Card>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Generate New Keywords</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
             type="text"
