@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { auditSEO } from '../services/geminiService';
+import { auditSEO } from '../backend_API/apiClient';
 import Card from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';

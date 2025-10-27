@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import KeywordResearch from './pages/KeywordResearch';
@@ -18,8 +17,7 @@ const ToolSuite: React.FC = () => {
   const { clearHistory } = useHistory();
 
   const currentPathKey = location.pathname.substring(1);
-  const isValidKey = NAV_ITEMS.some(item => item.key === currentPathKey);
-  const activeNavItem: NavItemKey = isValidKey ? currentPathKey as NavItemKey : NAV_ITEMS[0].key;
+  const activeNavItem = NAV_ITEMS.find(item => item.key === currentPathKey);
 
   useEffect(() => {
     // Clear undo/redo history on page navigation
@@ -28,11 +26,10 @@ const ToolSuite: React.FC = () => {
 
   // Effect to update head tags (title, meta description, canonical) for SEO
   useEffect(() => {
-    const currentItem = NAV_ITEMS.find(item => item.key === activeNavItem);
     const BASE_URL = window.location.origin;
 
-    if (currentItem) {
-      document.title = `${currentItem.title} | AI SEO Studio`;
+    if (activeNavItem) {
+      document.title = `${activeNavItem.title} | AI SEO Studio`;
       
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
@@ -40,7 +37,7 @@ const ToolSuite: React.FC = () => {
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      metaDescription.setAttribute('content', currentItem.description);
+      metaDescription.setAttribute('content', activeNavItem.description);
     }
 
     // Update canonical URL
@@ -57,7 +54,7 @@ const ToolSuite: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
-      <Header activeNavItem={activeNavItem} />
+      <Header />
       <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 md:p-8 w-full mx-auto max-w-6xl">
         <Routes>
           <Route path="/keywordResearch" element={<KeywordResearch />} />

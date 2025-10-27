@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { createContentBrief } from '../services/geminiService';
+import { createContentBrief } from '../backend_API/apiClient';
 import Card from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';

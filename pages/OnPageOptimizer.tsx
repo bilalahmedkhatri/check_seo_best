@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { optimizeContent } from '../services/geminiService';
+import { optimizeContent } from '../backend_API/apiClient';
 import Card from '../components/Card';
 import Input from '../components/Input';
 import Textarea from '../components/Textarea';
