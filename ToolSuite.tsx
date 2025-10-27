@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import KeywordResearch from './pages/KeywordResearch';
-import SERPMonitoring from './pages/SERPMonitoring';
-import ContentBrief from './pages/ContentBrief';
-import OnPageOptimizer from './pages/OnPageOptimizer';
-import KeywordStrategist from './pages/KeywordStrategist';
-import SEOAudit from './pages/SEOAudit';
+import KeywordResearch from './components/KeywordResearch';
+import SERPMonitoring from './components/SERPMonitoring';
+import ContentBrief from './components/ContentBrief';
+import OnPageOptimizer from './components/OnPageOptimizer';
+import KeywordStrategist from './components/KeywordStrategist';
+import SEOAudit from './components/SEOAudit';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { NAV_ITEMS } from './constants';
