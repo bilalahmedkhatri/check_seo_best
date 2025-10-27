@@ -16,28 +16,31 @@ const HeroSection: React.FC = () => {
     <section ref={sectionRef} className="relative bg-gray-900 text-white overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 animated-dots"></div>
       <div className="relative w-full mx-auto max-w-6xl px-4 sm:px-6 md:px-8 min-h-screen flex items-center justify-center text-center">
-        <div className="space-y-6 pt-16">
-          <div className="flex justify-center space-x-4 animate-on-scroll fade-in">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-full">
+        <div className="py-16">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 animate-on-scroll fade-in">
+            {['Capterra', 'G2', 'Google'].map((platform) => (
+              <div key={platform} className="flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-full">
                 <div className="flex text-yellow-400">
                   {[...Array(5)].map((_, j) => <StarIcon key={j} className="h-4 w-4" />)}
                 </div>
-                <span className="text-sm">4.9 on G2</span>
+                <span className="text-sm">4.9 on {platform}</span>
               </div>
             ))}
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight animate-on-scroll fade-in delay-100">
+
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight animate-on-scroll fade-in delay-100">
             AI-Powered <span className="text-brand-primary">SEO & Content</span> Studio
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto animate-on-scroll fade-in delay-200">
+          
+          <p className="mt-6 text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto animate-on-scroll fade-in delay-200">
             Automate your SEO workflow from keyword research to content optimization. Outrank your competitors and drive measurable results with our all-in-one AI toolkit.
           </p>
-          <div className="w-full max-w-lg mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 animate-on-scroll fade-in delay-300">
+
+          <div className="mt-8 w-full max-w-lg mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 animate-on-scroll fade-in delay-300">
             <input
               type="url"
               placeholder="Enter your website URL"
-              className="w-full sm:w-80 bg-white/10 border border-gray-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-colors"
+              className="w-full sm:w-80 bg-white/10 border border-gray-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-colors placeholder-gray-400"
             />
             <Link to="/seoAudit" className="w-full sm:w-auto bg-brand-primary hover:bg-brand-secondary text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-brand-primary transition-colors duration-200 btn-pulse flex-shrink-0">
               Get Your Free Audit
