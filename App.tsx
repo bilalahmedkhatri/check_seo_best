@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import LandingPage from './components/LandingPage';
+import LandingPage from './pages/LandingPage';
 import ToolSuite from './ToolSuite';
 
 const App: React.FC = () => {
