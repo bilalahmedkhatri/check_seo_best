@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import anime from 'animejs';
 import { Link } from 'react-router-dom';
@@ -106,14 +107,14 @@ const Header: React.FC<HeaderProps> = ({ activeNavItem }) => {
     <div className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
       <div className="w-full mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
         <header className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3">
             <div className="bg-brand-primary p-2 rounded-lg">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">AI SEO Studio</p>
-          </div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">Best SEO</p>
+          </Link>
           
           <div className="flex items-center">
             <nav className="hidden md:flex items-center space-x-1 relative">
