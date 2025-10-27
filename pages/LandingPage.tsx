@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
 
 // --- Logo Carousel Component ---
 const LogoCarousel: React.FC = () => {
-    const logos = ['Google', 'Amazon', 'Microsoft', 'Shopify', 'Slack', 'HubSpot', 'Netflix'];
+    const logos = ['Asana', 'Mailchimp', 'Canva', 'Zapier', 'Zendesk', 'Buffer', 'Trello'];
     const duplicatedLogos = [...logos, ...logos]; // Duplicate for seamless scroll
   return (
     <section className="bg-gray-50 dark:bg-gray-800 py-12">
